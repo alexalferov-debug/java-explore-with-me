@@ -63,7 +63,7 @@ public class StatsDataRepositoryTest {
                 .uri("/test")
                 .timestamp(LocalDateTime.now())
                 .build();
-        StatsData data2 =StatsData
+        StatsData data2 = StatsData
                 .builder()
                 .app("app1")
                 .ip("192.168.1.2")
