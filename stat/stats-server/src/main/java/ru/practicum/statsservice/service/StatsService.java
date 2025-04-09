@@ -2,6 +2,7 @@ package ru.practicum.statsservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.statscommon.dto.EndpointHit;
 import ru.practicum.statscommon.dto.ViewStats;
 import ru.practicum.statsservice.mapper.StatsMapper;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional(readOnly = true)
 public class StatsService {
 
     StatsDataRepository statsDataRepository;
@@ -22,6 +24,7 @@ public class StatsService {
         this.statsDataRepository = statsDataRepository;
     }
 
+    @Transactional
     public void saveHit(EndpointHit endpointHit) {
         StatsData data = StatsMapper.INSTANCE.fromDto(endpointHit);
         statsDataRepository.save(data);
