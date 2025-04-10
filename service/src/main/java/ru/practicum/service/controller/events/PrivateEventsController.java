@@ -56,3 +56,4 @@ public class PrivateEventsController {
         return ResponseEntity.ok(eventsService.patchCurUserEvent(userId, eventId, request));
     }
 }
+

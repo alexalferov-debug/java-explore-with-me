@@ -64,63 +64,109 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto patchCurUserEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         User user = userDao.get(userId);
         Event event = eventRepository.findByIdAndInitiator(eventId, user);
+        return checkPatchRequestChanges(event,
+                updateEventUserRequest.getAnnotation(),
+                updateEventUserRequest.getCategory(),
+                updateEventUserRequest.getDescription(),
+                updateEventUserRequest.getEventDate(),
+                updateEventUserRequest.getLocation(),
+                updateEventUserRequest.getPaid(),
+                updateEventUserRequest.getParticipantLimit(),
+                updateEventUserRequest.getRequestModeration(),
+                updateEventUserRequest.getTitle(),
+                updateEventUserRequest.getStateAction(),
+                false);
+    }
+
+    @Override
+    @Transactional
+    public EventFullDto patchAdminEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
+        Event event = eventRepository.findById(eventId);
+        return checkPatchRequestChanges(event,
+                updateEventAdminRequest.getAnnotation(),
+                updateEventAdminRequest.getCategory(),
+                updateEventAdminRequest.getDescription(),
+                updateEventAdminRequest.getEventDate(),
+                updateEventAdminRequest.getLocation(),
+                updateEventAdminRequest.getPaid(),
+                updateEventAdminRequest.getParticipantLimit(),
+                updateEventAdminRequest.getRequestModeration(),
+                updateEventAdminRequest.getTitle(),
+                updateEventAdminRequest.getStateAction(),
+                true);
+    }
+
+    private EventFullDto checkPatchRequestChanges(Event event,
+                                                  String annotation,
+                                                  Long categoryRequest,
+                                                  String description,
+                                                  LocalDateTime eventDate,
+                                                  ru.practicum.service.dto.location.Location locationRequest,
+                                                  Boolean paid,
+                                                  Integer participantLimit,
+                                                  Boolean requestModeration,
+                                                  String title,
+                                                  EventStateAction stateAction,
+                                                  boolean isAdmin) {
         boolean isChanged = false;
-        if (!(event.getState().equals(EventState.CANCELED) || event.getState().equals(EventState.PENDING))) {
+        if (!isAdmin && !(event.getState().equals(EventState.CANCELED) || event.getState().equals(EventState.PENDING))) {
             throw new EventValidationException("Редактировать можно только отмененное или ожидающее модерации событие");
         }
-        if (Objects.nonNull(updateEventUserRequest.getAnnotation()) && !event.getAnnotation().equals(updateEventUserRequest.getAnnotation())) {
+        if (Objects.nonNull(annotation) && !event.getAnnotation().equals(annotation)) {
             isChanged = true;
-            event.setAnnotation(updateEventUserRequest.getAnnotation());
+            event.setAnnotation(annotation);
         }
-        if (Objects.nonNull(updateEventUserRequest.getCategory()) && !event.getCategory().getId().equals(updateEventUserRequest.getCategory())) {
+        if (Objects.nonNull(categoryRequest) && !event.getCategory().getId().equals(categoryRequest)) {
             isChanged = true;
-            Category category = categoryDao.findById(updateEventUserRequest.getCategory());
+            Category category = categoryDao.findById(categoryRequest);
             event.setCategory(category);
         }
-        if (Objects.nonNull(updateEventUserRequest.getDescription()) && !event.getDescription().equals(updateEventUserRequest.getDescription())) {
+        if (Objects.nonNull(description) && !event.getDescription().equals(description)) {
             isChanged = true;
-            event.setDescription(updateEventUserRequest.getDescription());
+            event.setDescription(description);
         }
-        if (Objects.nonNull(updateEventUserRequest.getEventDate()) && !event.getEventDate().equals(updateEventUserRequest.getEventDate())) {
+        if (Objects.nonNull(eventDate) && !event.getEventDate().equals(eventDate)) {
             isChanged = true;
-            event.setEventDate(updateEventUserRequest.getEventDate());
+            event.setEventDate(eventDate);
         }
-        if (Objects.nonNull(updateEventUserRequest.getLocation()) && !(event.getLocation().getLatitude().equals(updateEventUserRequest.getLocation().getLatitude()) && event.getLocation().getLongitude().equals(updateEventUserRequest.getLocation().getLongitude()))) {
+        if (Objects.nonNull(locationRequest) && !(event.getLocation().getLatitude().equals(locationRequest.getLat()) && event.getLocation().getLongitude().equals(locationRequest.getLon()))) {
             isChanged = true;
-            Location location = locationRepository.insertOrUpdateLocation(updateEventUserRequest.getLocation().getLatitude(), updateEventUserRequest.getLocation().getLongitude());
+            Location location = locationRepository.insertOrUpdateLocation(locationRequest.getLat(), locationRequest.getLon());
             event.setLocation(location);
         }
-        if (Objects.nonNull(updateEventUserRequest.getPaid()) && !event.getPaid().equals(updateEventUserRequest.getPaid())) {
+        if (Objects.nonNull(paid) && !event.getPaid().equals(paid)) {
             isChanged = true;
-            event.setPaid(updateEventUserRequest.getPaid());
+            event.setPaid(paid);
         }
-        if (Objects.nonNull(updateEventUserRequest.getParticipantLimit()) && !event.getParticipantLimit().equals(updateEventUserRequest.getParticipantLimit())) {
+        if (Objects.nonNull(participantLimit) && !event.getParticipantLimit().equals(participantLimit)) {
             isChanged = true;
-            event.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
+            event.setParticipantLimit(participantLimit);
         }
-        if (Objects.nonNull(updateEventUserRequest.getRequestModeration()) && !event.getRequestModeration().equals(updateEventUserRequest.getRequestModeration())) {
+        if (Objects.nonNull(requestModeration) && !event.getRequestModeration().equals(requestModeration)) {
             isChanged = true;
-            event.setRequestModeration(updateEventUserRequest.getRequestModeration());
+            event.setRequestModeration(requestModeration);
         }
-        if (Objects.nonNull(updateEventUserRequest.getTitle()) && !event.getTitle().equals(updateEventUserRequest.getTitle())) {
+        if (Objects.nonNull(title) && !event.getTitle().equals(title)) {
             isChanged = true;
-            event.setTitle(updateEventUserRequest.getTitle());
+            event.setTitle(title);
         }
-        if (Objects.nonNull(updateEventUserRequest.getStateAction()) && (updateEventUserRequest.getStateAction().equals(EventStateAction.CANCEL_REVIEW) && !event.getState().equals(EventState.CANCELED))) {
-            isChanged = true;
-            event.setState(EventState.CANCELED);
+        if (!isAdmin) {
+            if (Objects.nonNull(stateAction) && (stateAction.equals(EventStateAction.CANCEL_REVIEW) && !event.getState().equals(EventState.CANCELED))) {
+                isChanged = true;
+                event.setState(EventState.CANCELED);
+            }
+        } else {
+            EventState state = EventStateAction.getByAction(stateAction);
+            if (Objects.nonNull(state) && !event.getState().equals(state)) {
+                isChanged = true;
+                event.setState(state);
+            }
         }
         if (isChanged) {
             return EventMapper.INSTANCE.toFullDto(eventRepository.createEvent(event));
         } else {
             return EventMapper.INSTANCE.toFullDto(event);
         }
-    }
-
-    @Override
-    @Transactional
-    public EventFullDto patchAdminEvent(UpdateEventAdminRequest updateEventUserRequest) {
-        return null;
     }
 
     @Override
@@ -140,7 +186,8 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    public List<EventFullDto> getEventsForAdmin(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
-        return List.of();
+    public List<EventFullDto> getEventsForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from / size, size);
+        return eventRepository.getRequestsForAdminWithFiltering(users, states, categories, rangeStart, rangeEnd, pageable).stream().map(EventMapper.INSTANCE::toFullDto).collect(Collectors.toList());
     }
 }

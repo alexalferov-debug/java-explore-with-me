@@ -1,6 +1,7 @@
 package ru.practicum.service.logging;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.service.data.EventState;
 import ru.practicum.service.dto.event.EventFullDto;
 import ru.practicum.service.dto.event.NewEventDto;
 import ru.practicum.service.dto.event.UpdateEventAdminRequest;
@@ -31,9 +32,9 @@ public class LoggingEventsDecorator implements EventsService {
     }
 
     @Override
-    public EventFullDto patchAdminEvent(UpdateEventAdminRequest updateEventUserRequest) {
+    public EventFullDto patchAdminEvent(Long eventId, UpdateEventAdminRequest updateEventUserRequest) {
         log.info("Модификация события администратором: {}", updateEventUserRequest);
-        return delegate.patchAdminEvent(updateEventUserRequest);
+        return delegate.patchAdminEvent(eventId, updateEventUserRequest);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class LoggingEventsDecorator implements EventsService {
     }
 
     @Override
-    public List<EventFullDto> getEventsForAdmin(List<Long> users, List<String> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+    public List<EventFullDto> getEventsForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         log.info("Запрошена информация о событиях администратором с фильтрами: users = {}, states = {} , categories = {}, rangeStart = {}, rangeEnd = {}, from = {}, size = {}", users, states, categories, rangeStart, rangeEnd, from, size);
         return delegate.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
     }

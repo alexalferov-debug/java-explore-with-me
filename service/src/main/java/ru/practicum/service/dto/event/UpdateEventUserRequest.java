@@ -6,7 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.practicum.service.data.EventStateAction;
-import ru.practicum.service.model.Location;
+import ru.practicum.service.dto.location.Location;
 import ru.practicum.service.validation.EventDateConstraint;
 
 import java.time.LocalDateTime;
