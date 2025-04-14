@@ -1,5 +1,6 @@
 package ru.practicum.service.handler;
 
+import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EventValidationException.class)
     public ResponseEntity<ApiError> handleEventValidation(EventValidationException ex) {
         return buildResponse(HttpStatus.CONFLICT, "For the requested operation the conditions are not met.",
+                ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleEventValidation(ValidationException ex) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "For the requested operation the conditions are not met.",
                 ex.getMessage(), List.of());
     }
 

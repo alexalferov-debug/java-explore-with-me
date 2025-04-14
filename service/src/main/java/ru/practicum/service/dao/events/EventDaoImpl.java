@@ -11,6 +11,7 @@ import ru.practicum.service.repository.EventRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class EventDaoImpl implements EventDao {
@@ -41,7 +42,28 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public List<Event> getRequestsForAdminWithFiltering(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable) {
+    public Event findByIdAndState(Long eventId, EventState state) {
+        return eventRepository.findByIdAndState(eventId, state).orElseThrow(() -> new NotFoundException("Событие = " + eventId + " не найдено в статусе " + state));
+    }
+
+    @Override
+    public List<Event> getEventsForAdminWithFiltering(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable) {
         return eventRepository.findEventsForAdminWithFiltering(users, states, categories, rangeStart, rangeEnd, pageable).getContent();
+    }
+
+    @Override
+    public List<Event> getEventsPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, Pageable pageable) {
+        if (Objects.isNull(onlyAvailable)) {
+            onlyAvailable = false;
+        }
+        if (Objects.isNull(text)) {
+            text = "";
+        }
+        return eventRepository.findEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageable).getContent();
+    }
+
+    @Override
+    public Long findEventsCountByCategoryId(Long categoryId) {
+        return eventRepository.findEventCountByCategoryId(categoryId);
     }
 }

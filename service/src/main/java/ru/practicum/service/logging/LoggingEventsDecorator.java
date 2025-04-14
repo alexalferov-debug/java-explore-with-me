@@ -1,11 +1,10 @@
 package ru.practicum.service.logging;
 
 import lombok.extern.slf4j.Slf4j;
+import ru.practicum.service.data.EventSortParam;
 import ru.practicum.service.data.EventState;
-import ru.practicum.service.dto.event.EventFullDto;
-import ru.practicum.service.dto.event.NewEventDto;
-import ru.practicum.service.dto.event.UpdateEventAdminRequest;
-import ru.practicum.service.dto.event.UpdateEventUserRequest;
+import ru.practicum.service.dto.event.*;
+import ru.practicum.service.dto.request.ParticipationRequestDto;
 import ru.practicum.service.service.events.EventsService;
 
 import java.time.LocalDateTime;
@@ -50,8 +49,38 @@ public class LoggingEventsDecorator implements EventsService {
     }
 
     @Override
+    public EventFullDto getEventById(Long eventId) {
+        log.info("Запрошена информация о событии с id = {}", eventId);
+        return delegate.getEventById(eventId);
+    }
+
+    @Override
+    public EventFullDto getEventByIdAndState(Long eventId, EventState state, String ipAddress) {
+        log.info("Запрошена информация о событии id = {} в статусе {} c ip = {}", eventId, state, ipAddress);
+        return delegate.getEventByIdAndState(eventId, state, ipAddress);
+    }
+
+    @Override
     public List<EventFullDto> getEventsForAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         log.info("Запрошена информация о событиях администратором с фильтрами: users = {}, states = {} , categories = {}, rangeStart = {}, rangeEnd = {}, from = {}, size = {}", users, states, categories, rangeStart, rangeEnd, from, size);
         return delegate.getEventsForAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+    }
+
+    @Override
+    public List<EventShortDto> getEventsPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, EventSortParam sort, Integer from, Integer size) {
+        log.info("Запрошена информация о списке событий по публичному эндпоинту с параметрами: text = {}, categories = {}, paid = {}, rangeStart = {}, rangeEnd = {}, onlyAvailable = {}, sort = {}, from = {}, size = {}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        return delegate.getEventsPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+    }
+
+    @Override
+    public EventRequestStatusUpdateResult updateParticipation(Long userId, Long eventId, EventRequestStatusUpdateRequest participationRequestDto) {
+        log.info("Запрошено изменения статуса на {} для пользователей {} в событии {}  ", participationRequestDto.getStatus(), eventId, participationRequestDto.getRequestIds());
+        return delegate.updateParticipation(userId, eventId, participationRequestDto);
+    }
+
+    @Override
+    public List<ParticipationRequestDto> getParticipation(Long userId, Long eventId) {
+        log.info("Запрошен список запросов на участие для события {} ", eventId);
+        return delegate.getParticipation(userId, eventId);
     }
 }

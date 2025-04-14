@@ -7,6 +7,8 @@ import ru.practicum.service.dao.events.EventDao;
 import ru.practicum.service.dao.user.UserDao;
 import ru.practicum.service.logging.LoggingEventsDecorator;
 import ru.practicum.service.repository.LocationRepository;
+import ru.practicum.service.repository.RequestRepository;
+import ru.practicum.service.service.events.EventViewService;
 import ru.practicum.service.service.events.EventsService;
 import ru.practicum.service.service.events.EventsServiceImpl;
 
@@ -14,10 +16,17 @@ import ru.practicum.service.service.events.EventsServiceImpl;
 public class EventServiceConfig {
     @Bean
     public EventsService eventsService(EventDao repo,
-                                     UserDao userDao,
-                                     CategoryDao categoryDao,
-                                     LocationRepository locationRepository) {
-        EventsService service = new EventsServiceImpl(repo, locationRepository, userDao, categoryDao);
+                                       UserDao userDao,
+                                       CategoryDao categoryDao,
+                                       LocationRepository locationRepository,
+                                       RequestRepository requestRepository,
+                                       EventViewService eventViewService) {
+        EventsService service = new EventsServiceImpl(repo,
+                locationRepository,
+                userDao,
+                categoryDao,
+                requestRepository,
+                eventViewService);
         service = new LoggingEventsDecorator(service);
         return service;
     }

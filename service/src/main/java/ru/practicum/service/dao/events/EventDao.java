@@ -17,10 +17,22 @@ public interface EventDao {
 
     Event findById(Long eventId);
 
-    List<Event> getRequestsForAdminWithFiltering(List<Long> users,
-                                                 List<EventState> states,
-                                                 List<Long> categories,
-                                                 LocalDateTime rangeStart,
-                                                 LocalDateTime rangeEnd,
-                                                 Pageable pageable);
+    Event findByIdAndState(Long eventId, EventState state);
+
+    List<Event> getEventsForAdminWithFiltering(List<Long> users,
+                                               List<EventState> states,
+                                               List<Long> categories,
+                                               LocalDateTime rangeStart,
+                                               LocalDateTime rangeEnd,
+                                               Pageable pageable);
+
+    List<Event> getEventsPublic(String text,
+                                List<Long> categories,
+                                Boolean paid,
+                                LocalDateTime rangeStart,
+                                LocalDateTime rangeEnd,
+                                Boolean onlyAvailable,
+                                Pageable pageable);
+
+    Long findEventsCountByCategoryId(Long categoryId);
 }

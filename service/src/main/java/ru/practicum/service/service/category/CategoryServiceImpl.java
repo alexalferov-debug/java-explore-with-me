@@ -6,8 +6,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.service.dao.category.CategoryDao;
+import ru.practicum.service.dao.events.EventDao;
 import ru.practicum.service.dto.category.CategoryDto;
 import ru.practicum.service.dto.category.NewCategoryDto;
+import ru.practicum.service.exception.EventValidationException;
 import ru.practicum.service.mapper.CategoryMapper;
 import ru.practicum.service.model.Category;
 
@@ -17,10 +19,12 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
     CategoryDao categoryDao;
+    EventDao eventDao;
 
     @Autowired
-    public CategoryServiceImpl(CategoryDao categoryDao) {
+    public CategoryServiceImpl(CategoryDao categoryDao, EventDao eventDao) {
         this.categoryDao = categoryDao;
+        this.eventDao = eventDao;
     }
 
     @Override
@@ -32,6 +36,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long id) {
+        if (eventDao.findEventsCountByCategoryId(id) > 0) {
+            throw new EventValidationException("Невозможно удалить категорию с id " + id + ", так как к данной категории привязаны события");
+        }
         categoryDao.delete(id);
     }
 

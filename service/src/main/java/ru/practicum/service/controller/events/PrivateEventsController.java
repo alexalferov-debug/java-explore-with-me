@@ -7,9 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.service.dto.event.EventFullDto;
-import ru.practicum.service.dto.event.NewEventDto;
-import ru.practicum.service.dto.event.UpdateEventUserRequest;
+import ru.practicum.service.dto.event.*;
+import ru.practicum.service.dto.request.ParticipationRequestDto;
 import ru.practicum.service.service.events.EventsService;
 
 import java.util.List;
@@ -54,6 +53,21 @@ public class PrivateEventsController {
                                                    @PathVariable @PositiveOrZero Long eventId,
                                                    @RequestBody @Validated UpdateEventUserRequest request) {
         return ResponseEntity.ok(eventsService.patchCurUserEvent(userId, eventId, request));
+    }
+
+    @PatchMapping("/{eventId}/requests")
+    public ResponseEntity<EventRequestStatusUpdateResult> updateStatusForRequests(@PathVariable @PositiveOrZero Long userId,
+                                                                                  @PathVariable @PositiveOrZero Long eventId,
+                                                                                  @RequestBody @Validated EventRequestStatusUpdateRequest request) {
+
+        return ResponseEntity.ok(eventsService.updateParticipation(userId, eventId, request));
+    }
+
+    @GetMapping("/{eventId}/requests")
+    public ResponseEntity<List<ParticipationRequestDto>> updateStatusForRequests(@PathVariable @PositiveOrZero Long userId,
+                                                                                 @PathVariable @PositiveOrZero Long eventId) {
+
+        return ResponseEntity.ok(eventsService.getParticipation(userId, eventId));
     }
 }
 

@@ -29,3 +29,7 @@ logging:
         orm:
           jpa: INFO
         transaction: INFO
+stats-server:
+  url: "http://localhost:9090"
+  connectTimeout: 2
+  readTimeout: 3
