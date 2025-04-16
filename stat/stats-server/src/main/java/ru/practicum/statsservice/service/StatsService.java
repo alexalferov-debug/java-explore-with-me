@@ -31,6 +31,9 @@ public class StatsService {
     }
 
     public List<ViewStats> getStats(LocalDateTime from, LocalDateTime to, List<String> uris, boolean unique) {
+        if (to.isBefore(from)) {
+            throw new IllegalArgumentException("to must be before from");
+        }
         if (unique) {
             if (Objects.isNull(uris) || uris.isEmpty()) {
                 return statsDataRepository.getStatsDataUnique(from, to);

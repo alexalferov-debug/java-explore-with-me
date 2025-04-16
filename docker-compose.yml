@@ -9,6 +9,11 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsdb
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
+    healthcheck:
+      test: ["CMD", "wget", "-q", "http://localhost:9090/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   stats-db:
     image: postgres:16.1
@@ -31,11 +36,15 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - ewm-db
+      ewm-db:
+        condition: service_healthy
+      stats-server:
+         condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/maindb
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
+      - STATS_SERVER=http://stats-server:9090
 
   ewm-db:
     image: postgres:16.1
