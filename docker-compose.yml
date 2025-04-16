@@ -21,7 +21,7 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
     healthcheck:
-      test: pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10
@@ -33,7 +33,7 @@ services:
     depends_on:
       - ewm-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:7777/maindb
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/maindb
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
 
@@ -48,7 +48,7 @@ services:
       - POSTGRES_USER=dbuser
       - POSTGRES_PASSWORD=12345
     healthcheck:
-      test: pg_isready -q -d $POSTGRES_DB -U $POSTGRES_USER
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 5s
       retries: 10

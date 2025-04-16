@@ -19,6 +19,8 @@ public interface EventDao {
 
     Event findByIdAndState(Long eventId, EventState state);
 
+    List<Event> findByIdIn(List<Long> eventIds);
+
     List<Event> getEventsForAdminWithFiltering(List<Long> users,
                                                List<EventState> states,
                                                List<Long> categories,

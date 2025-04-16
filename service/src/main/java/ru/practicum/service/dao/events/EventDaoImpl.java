@@ -47,6 +47,11 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
+    public List<Event> findByIdIn(List<Long> eventIds) {
+        return eventRepository.findByIdIn(eventIds);
+    }
+
+    @Override
     public List<Event> getEventsForAdminWithFiltering(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Pageable pageable) {
         return eventRepository.findEventsForAdminWithFiltering(users, states, categories, rangeStart, rangeEnd, pageable).getContent();
     }

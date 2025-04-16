@@ -20,6 +20,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     Optional<Event> findByIdAndState(Long id, EventState state);
 
+    List<Event> findByIdIn(List<Long> ids);
+
     @Query("SELECT e FROM Event e " +
             "WHERE " +
             "(:users IS NULL OR e.initiator.id IN :users) " +
