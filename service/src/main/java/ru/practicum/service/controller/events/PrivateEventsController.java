@@ -2,7 +2,6 @@ package ru.practicum.service.controller.events;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,7 +17,6 @@ import java.util.List;
 public class PrivateEventsController {
     EventsService eventsService;
 
-    @Autowired
     public PrivateEventsController(EventsService eventsService) {
         this.eventsService = eventsService;
     }

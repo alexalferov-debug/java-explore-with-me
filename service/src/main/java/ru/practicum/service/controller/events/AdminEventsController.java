@@ -1,7 +1,6 @@
 package ru.practicum.service.controller.events;
 
 import jakarta.validation.constraints.PositiveOrZero;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +18,6 @@ import java.util.List;
 public class AdminEventsController {
     EventsService eventsService;
 
-    @Autowired
     public AdminEventsController(EventsService eventsService) {
         this.eventsService = eventsService;
     }

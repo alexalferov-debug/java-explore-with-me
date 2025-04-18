@@ -1,6 +1,5 @@
 package ru.practicum.service.controller.compilation;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.service.dto.compilation.CompilationDto;
@@ -14,7 +13,6 @@ public class PublicCompilationsController {
 
     CompilationService compilationService;
 
-    @Autowired
     public PublicCompilationsController(CompilationService compilationService) {
         this.compilationService = compilationService;
     }

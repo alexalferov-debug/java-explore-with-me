@@ -1,6 +1,5 @@
 package ru.practicum.service.controller.compilation;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +15,6 @@ public class AdminCompilationController {
 
     CompilationService compilationService;
 
-    @Autowired
     public AdminCompilationController(CompilationService compilationService) {
         this.compilationService = compilationService;
     }

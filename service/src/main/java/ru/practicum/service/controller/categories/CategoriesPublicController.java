@@ -1,7 +1,6 @@
 package ru.practicum.service.controller.categories;
 
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.service.dto.category.CategoryDto;
 import ru.practicum.service.service.category.CategoryService;
@@ -13,7 +12,6 @@ import java.util.List;
 public class CategoriesPublicController {
     CategoryService categoryService;
 
-    @Autowired
     public CategoriesPublicController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }

@@ -1,6 +1,5 @@
 package ru.practicum.service.controller.categories;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,7 +13,6 @@ import ru.practicum.service.service.category.CategoryService;
 public class CategoriesAdminController {
     CategoryService categoryService;
 
-    @Autowired
     public CategoriesAdminController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.service.dao.compilation.CompilationDao;
 import ru.practicum.service.dao.events.EventDao;
 import ru.practicum.service.dto.compilation.CompilationDto;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
     CompilationDao compilationDao;
@@ -32,6 +34,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         List<Event> events = new ArrayList<>();
         if (Objects.nonNull(newCompilationDto.getEventsId()) && !newCompilationDto.getEventsId().isEmpty()) {
@@ -43,6 +46,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public CompilationDto patchCompilation(long id, UpdateCompilationRequest updateCompilationRequest) {
         Compilation compilation = compilationDao.get(id);
         if (Objects.nonNull(updateCompilationRequest.getTitle())) {
@@ -58,6 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilation(long id) {
         compilationDao.get(id);
         compilationDao.delete(id);
