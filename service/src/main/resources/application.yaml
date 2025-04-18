@@ -1,8 +1,6 @@
-server:
-  port: 9090
 spring:
   application:
-    name: stats-service
+    name: service
   jpa:
     hibernate:
       ddl-auto: none
@@ -31,6 +29,10 @@ logging:
         orm:
           jpa: INFO
         transaction: INFO
+stats-server:
+  url: ${STATS_SERVER}
+  connectTimeout: 10
+  readTimeout: 30
 management:
   endpoints:
     web:

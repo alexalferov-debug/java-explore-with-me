@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:7777/maindb
+    username: dbuser
+    password: 12345
+stats-server:
+  url: "http://localhost:9090"
+  connectTimeout: 2
+  readTimeout: 3
