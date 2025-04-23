@@ -213,12 +213,7 @@ public class EventsServiceImpl implements EventsService {
     public EventFullDto getEventByIdAndState(Long eventId, EventState state, String ipAddress) {
         Event event = eventRepository.findById(eventId);
         eventViewService.addView(eventId, ipAddress);
-        Long viewsCount = eventViewService.getUniqueViewCount(eventId);
-        event.setViews(viewsCount);
-        eventRepository.createEvent(event);
-        EventFullDto fullDto = EventMapper.INSTANCE.toFullDto(eventRepository.findByIdAndState(eventId, state));
-        fullDto.setViews(viewsCount);
-        return fullDto;
+        return EventMapper.INSTANCE.toFullDto(eventRepository.findByIdAndState(eventId, state));
     }
 
     @Override

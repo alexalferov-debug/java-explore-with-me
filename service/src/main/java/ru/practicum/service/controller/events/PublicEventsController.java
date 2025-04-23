@@ -10,8 +10,10 @@ import ru.practicum.service.data.EventSortParam;
 import ru.practicum.service.data.EventState;
 import ru.practicum.service.dto.event.EventFullDto;
 import ru.practicum.service.dto.event.EventShortDto;
+import ru.practicum.service.dto.event.comment.ShortCommentDto;
 import ru.practicum.service.service.StatisticsService;
 import ru.practicum.service.service.events.EventsService;
+import ru.practicum.service.service.events.comments.CommentService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,11 +24,14 @@ import java.util.List;
 public class PublicEventsController {
     private final StatisticsService statisticsService;
     private final EventsService eventsService;
+    private final CommentService commentService;
 
     public PublicEventsController(StatisticsService statisticsService,
-                                  EventsService eventsService) {
+                                  EventsService eventsService,
+                                  CommentService commentService) {
         this.statisticsService = statisticsService;
         this.eventsService = eventsService;
+        this.commentService = commentService;
     }
 
     @GetMapping
@@ -55,5 +60,12 @@ public class PublicEventsController {
         EventFullDto eventFullDto = eventsService.getEventByIdAndState(id, EventState.PUBLISHED, request.getRemoteAddr());
         statisticsService.recordHit(request);
         return ResponseEntity.ok(eventFullDto);
+    }
+
+    @GetMapping("/{eventId}/comments")
+    public ResponseEntity<List<ShortCommentDto>> getComments(@PathVariable @PositiveOrZero Long eventId,
+                                                             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                                                             @RequestParam(defaultValue = "10") @PositiveOrZero int size) {
+        return ResponseEntity.ok(commentService.getComments(eventId, from, size));
     }
 }

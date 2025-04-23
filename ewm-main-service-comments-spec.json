@@ -1,0 +1,3256 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/users/{userId}/requests": {
+      "get": {
+        "tags": [
+          "requests-controller"
+        ],
+        "operationId": "getRequests",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParticipationRequestDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "requests-controller"
+        ],
+        "operationId": "addRequest",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipationRequestDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/events": {
+      "get": {
+        "tags": [
+          "private-events-controller"
+        ],
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventFullDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "private-events-controller"
+        ],
+        "operationId": "create",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewEventDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventFullDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/{eventId}": {
+      "post": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Добавление комментария",
+        "description": "Позволяет пользователю оставить комментарий к опубликованному событию",
+        "operationId": "addComment",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "ID события",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 456
+          }
+        ],
+        "requestBody": {
+          "description": "Данные комментария",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCommentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Комментарий успешно добавлен",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortCommentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Событие не найдено или не опубликовано",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "examples": {
+                  "NotFound": {
+                    "description": "NotFound",
+                    "value": {
+                      "status": "NOT_FOUND",
+                      "reason": "The required object was not found.",
+                      "message": "Event with id=999 not found",
+                      "timestamp": "2024-01-01T12:00:00",
+                      "errors": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Невалидные данные запроса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "examples": {
+                  "Validation Error": {
+                    "description": "Validation Error",
+                    "value": {
+                      "status": "BAD_REQUEST",
+                      "reason": "Incorrectly made request.",
+                      "message": "Ошибка валидации",
+                      "timestamp": "2024-01-01T12:00:00",
+                      "errors": [
+                        "content: must not be blank"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/{commentId}/report": {
+      "post": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Создание жалобы на комментарий",
+        "description": "Позволяет пользователю пожаловаться на комментарий",
+        "operationId": "addReport",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID комментария",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 789
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          }
+        ],
+        "requestBody": {
+          "description": "Данные жалобы",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewReportDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportInfoDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Комментарий не найден",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Comment with id=789 not found"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Невалидные данные жалобы",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "Incorrectly made request.",
+                  "message": "Ошибка валидации",
+                  "errors": [
+                    "reason: must not be blank"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/reply/{commentId}": {
+      "post": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Добавление ответа на комментарий",
+        "description": "Добавляет ответ на комментарий. Ответ можно добавить только к неудаленному комментарию.",
+        "operationId": "addReply",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "Идентификатор комментария",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 10
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "Идентификатор пользователя",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 10
+          }
+        ],
+        "requestBody": {
+          "description": "Текст комментария",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCommentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortCommentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Comment with id=789 not found",
+                  "timestamp": "2024-01-01T12:00:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "getUsers",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "createUser",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/compilations": {
+      "post": {
+        "tags": [
+          "admin-compilation-controller"
+        ],
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewCompilationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompilationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "post": {
+        "tags": [
+          "categories-admin-controller"
+        ],
+        "operationId": "create_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewCategoryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/requests/{requestId}/cancel": {
+      "patch": {
+        "tags": [
+          "requests-controller"
+        ],
+        "operationId": "cancelRequest",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipationRequestDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/events/{eventId}": {
+      "get": {
+        "tags": [
+          "private-events-controller"
+        ],
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventFullDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "private-events-controller"
+        ],
+        "operationId": "patchEvent",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventUserRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventFullDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/events/{eventId}/requests": {
+      "get": {
+        "tags": [
+          "private-events-controller"
+        ],
+        "operationId": "updateStatusForRequests_1",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ParticipationRequestDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "private-events-controller"
+        ],
+        "operationId": "updateStatusForRequests",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventRequestStatusUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventRequestStatusUpdateResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/{commentId}": {
+      "delete": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Удаление комментария",
+        "description": "Помечает комментарий как удаленный (мягкое удаление). Если комментарий помечен как удаленный - все комментарии с ответами на текущий тоже помечаются как удаленные. Если комментарий уже помечен как удаленнный - вернуть 404.",
+        "operationId": "deleteComment",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID комментария",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 789
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Comment with id=789 not found",
+                  "timestamp": "2024-01-01T12:00:00"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Редактирование комментария",
+        "description": "Позволяет автору комментария изменить его содержимое",
+        "operationId": "updateComment",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID комментария",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 789
+          }
+        ],
+        "requestBody": {
+          "description": "Обновленные данные комментария",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddCommentDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortCommentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Comment with id=789 not found",
+                  "timestamp": "2024-01-01T12:00:00"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "For the requested operation the conditions are not met.",
+                  "message": "Нельзя редактировать чужие комментарии",
+                  "timestamp": "2024-01-01T12:00:00"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/events/{eventId}": {
+      "patch": {
+        "tags": [
+          "admin-events-controller"
+        ],
+        "operationId": "patch",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventAdminRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventFullDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/compilations/{compId}": {
+      "delete": {
+        "tags": [
+          "admin-compilation-controller"
+        ],
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "compId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "admin-compilation-controller"
+        ],
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "compId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompilationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompilationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/comments/report/{reportId}/resolve": {
+      "patch": {
+        "tags": [
+          "admin-comments-controller"
+        ],
+        "summary": "Изменение статуса жалобы",
+        "description": "Позволяет изменить статус обработки жалобы. Из статуса \"Ожидает\" возможен переход только в \"Принято\" и \"Отклонено\", из статусов \"Принято\" и \"Отклонено\" только в \"Ожидает\". Если жалоба принята - комментарий помечается на удаление. Если жалоба обработана - остальные жалобы на тот же комментарий переходят в соответствуйщий статус.",
+        "operationId": "resolveReport",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "description": "ID жалобы",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 456
+          },
+          {
+            "name": "newState",
+            "in": "query",
+            "description": "Новый статус",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "REJECTED",
+                "RESOLVED"
+              ]
+            },
+            "example": "RESOLVED"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportFullInfoDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "Report not found",
+                  "message": "Report with id=456 doesn't exist"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "Invalid state",
+                  "message": "Cannot transition from CLOSED to IN_PROGRESS"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/comments/report/{reportId}/note": {
+      "patch": {
+        "tags": [
+          "admin-comments-controller"
+        ],
+        "summary": "Добавление заметки к жалобе",
+        "description": "Позволяет администратору добавить внутреннюю заметку к жалобе",
+        "operationId": "addNote",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportAddNote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportFullInfoDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "Report not found",
+                  "message": "Report with id=456 doesn't exist"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "Validation error",
+                  "message": "Note text is required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories/{catId}": {
+      "delete": {
+        "tags": [
+          "categories-admin-controller"
+        ],
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "catId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "categories-admin-controller"
+        ],
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "catId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewCategoryDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments": {
+      "get": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Получение комментариев пользователя",
+        "description": "Возвращает список всех комментариев пользователя с указанием события",
+        "operationId": "getComments",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Начальная позиция",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Размер страницы",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Пользователь не найден",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "User with id=999 not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/report/{reportId}": {
+      "get": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Получение информации о жалобе",
+        "description": "Возвращает детали конкретной жалобы пользователя",
+        "operationId": "getReport",
+        "parameters": [
+          {
+            "name": "reportId",
+            "in": "path",
+            "description": "ID жалобы",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 456
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportInfoDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Жалоба не найдена",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Report with id=456 not found"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "FORBIDDEN",
+                  "reason": "Access denied",
+                  "message": "You can't view this report"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}/comments/report/": {
+      "get": {
+        "tags": [
+          "private-comments-controller"
+        ],
+        "summary": "Получение списка жалоб",
+        "description": "Возвращает список жалоб пользователя с возможностью фильтрации по статусу",
+        "operationId": "getReports",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID пользователя",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 123
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Фильтр по статусу жалобы",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING",
+                "REJECTED",
+                "RESOLVED"
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Начальная позиция",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Размер страницы",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неверные параметры запроса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "Incorrectly made request.",
+                  "message": "Invalid parameter: state"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "tags": [
+          "public-events-controller"
+        ],
+        "operationId": "getEvents",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          {
+            "name": "paid",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "rangeStart",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "rangeEnd",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "onlyAvailable",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EVENT_DATE",
+                "VIEWS"
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventShortDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "tags": [
+          "public-events-controller"
+        ],
+        "operationId": "getEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventFullDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{eventId}/comments": {
+      "get": {
+        "tags": [
+          "public-events-controller"
+        ],
+        "operationId": "getComments_1",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ShortCommentDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compilations": {
+      "get": {
+        "tags": [
+          "public-compilations-controller"
+        ],
+        "operationId": "getCompilations",
+        "parameters": [
+          {
+            "name": "pinned",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompilationDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compilations/{compId}": {
+      "get": {
+        "tags": [
+          "public-compilations-controller"
+        ],
+        "operationId": "getCompilation",
+        "parameters": [
+          {
+            "name": "compId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompilationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/{commentId}": {
+      "get": {
+        "tags": [
+          "public-comments-controller"
+        ],
+        "summary": "Получение комментария",
+        "description": "Возвращает комментарий по его ID (только неудаленные)",
+        "operationId": "getComment",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID комментария",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 789
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortCommentDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Комментарий не найден или удален",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Comment with id=789 not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/{commentId}/reply": {
+      "get": {
+        "tags": [
+          "public-comments-controller"
+        ],
+        "summary": "Получение ответов на комментарий",
+        "description": "Возвращает список ответов на комментарий с пагинацией",
+        "operationId": "getReplies",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID родительского комментария",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 789
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Начальная позиция",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Размер страницы",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Родительский комментарий не найден или удален",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "The required object was not found.",
+                  "message": "Parent comment with id=789 not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comment/reportReason": {
+      "get": {
+        "tags": [
+          "public-comments-controller"
+        ],
+        "summary": "Получение списка причин для жалоб",
+        "description": "Возвращает доступные причины для создания жалобы на комментарии",
+        "operationId": "getReportReasons",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "categories-public-controller"
+        ],
+        "operationId": "getAllCategories",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CategoryDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{catId}": {
+      "get": {
+        "tags": [
+          "categories-public-controller"
+        ],
+        "operationId": "getCategory",
+        "parameters": [
+          {
+            "name": "catId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/events": {
+      "get": {
+        "tags": [
+          "admin-events-controller"
+        ],
+        "operationId": "getEvents_1",
+        "parameters": [
+          {
+            "name": "usersId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          {
+            "name": "states",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "PUBLISHED",
+                  "CANCELED"
+                ]
+              }
+            }
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          },
+          {
+            "name": "rangeStart",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "rangeEnd",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventFullDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/comments": {
+      "get": {
+        "tags": [
+          "admin-comments-controller"
+        ],
+        "summary": "Поиск комментариев",
+        "description": "Административный поиск комментариев с расширенными фильтрами",
+        "operationId": "getAllComments",
+        "parameters": [
+          {
+            "name": "userIds",
+            "in": "query",
+            "description": "Список ID пользователей",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              123,
+              456
+            ]
+          },
+          {
+            "name": "eventIds",
+            "in": "query",
+            "description": "Список ID событий",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              789,
+              101
+            ]
+          },
+          {
+            "name": "createdFrom",
+            "in": "query",
+            "description": "Дата создания ОТ",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2024-01-01 00:00:00"
+          },
+          {
+            "name": "createdTo",
+            "in": "query",
+            "description": "Дата создания ДО",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2024-12-31 23:59:59"
+          },
+          {
+            "name": "isDeleted",
+            "in": "query",
+            "description": "Фильтр по удаленным комментариям",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasReplies",
+            "in": "query",
+            "description": "Фильтр по наличию ответов",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "content",
+            "in": "query",
+            "description": "Поиск по содержимому",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "спам"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Начальная позиция",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Размер страницы",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FullCommentDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Неверные параметры запроса",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "Incorrect date range",
+                  "message": "createdFrom must be before createdTo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/comments/reports": {
+      "get": {
+        "tags": [
+          "admin-comments-controller"
+        ],
+        "summary": "Поиск жалоб",
+        "description": "Административный поиск жалоб с расширенными фильтрами",
+        "operationId": "getAllReports",
+        "parameters": [
+          {
+            "name": "eventsId",
+            "in": "query",
+            "description": "Список ID событий",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              789,
+              101
+            ]
+          },
+          {
+            "name": "reporterId",
+            "in": "query",
+            "description": "Список ID событий",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              789,
+              101
+            ]
+          },
+          {
+            "name": "commenterId",
+            "in": "query",
+            "description": "Список ID авторов комментариев",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              789,
+              101
+            ]
+          },
+          {
+            "name": "commentsId",
+            "in": "query",
+            "description": "Список ID комментариев",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              456,
+              789
+            ]
+          },
+          {
+            "name": "reason",
+            "in": "query",
+            "description": "Список ID причин жалоб",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            "example": [
+              1,
+              3
+            ]
+          },
+          {
+            "name": "createdFrom",
+            "in": "query",
+            "description": "Дата создания ОТ",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2024-01-01 00:00:00"
+          },
+          {
+            "name": "createdTo",
+            "in": "query",
+            "description": "Дата создания ДО",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2024-12-31 23:59:59"
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "Список статусов жалоб",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PENDING",
+                  "REJECTED",
+                  "RESOLVED"
+                ]
+              }
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Начальная позиция",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            },
+            "example": 0
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Размер страницы",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            },
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ReportFullInfoDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "BAD_REQUEST",
+                  "reason": "Invalid parameter",
+                  "message": "Unknown report state: INVALID_STATE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/users/{id}": {
+      "delete": {
+        "tags": [
+          "user-controller"
+        ],
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/admin/comments/{commentId}": {
+      "delete": {
+        "tags": [
+          "admin-comments-controller"
+        ],
+        "summary": "Удаление комментария",
+        "description": "Полное удаление комментария из системы (только для администраторов)",
+        "operationId": "deleteComment_1",
+        "parameters": [
+          {
+            "name": "commentId",
+            "in": "path",
+            "description": "ID комментария",
+            "required": true,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 789
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "status": "NOT_FOUND",
+                  "reason": "Comment not found",
+                  "message": "Comment with id=999 doesn't exist"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ParticipationRequestDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "event": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "requester": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "REJECTED",
+              "CANCELED"
+            ]
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "format": "float"
+          },
+          "lon": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "NewEventDto": {
+        "required": [
+          "annotation",
+          "category",
+          "description",
+          "eventDate",
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "annotation": {
+            "maxLength": 2000,
+            "minLength": 20,
+            "type": "string"
+          },
+          "category": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "maxLength": 7000,
+            "minLength": 20,
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "participantLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "requestModeration": {
+            "type": "boolean"
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 3,
+            "type": "string"
+          }
+        }
+      },
+      "CategoryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "EventFullDto": {
+        "type": "object",
+        "properties": {
+          "annotation": {
+            "type": "string"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CategoryDto"
+          },
+          "confirmedRequests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "participantLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "publishedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestModeration": {
+            "type": "boolean"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "PUBLISHED",
+              "CANCELED"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "UserShortDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "description": "Информация о пользователе, оставившем комментарий"
+      },
+      "ShortCommentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Идентификатор комментария",
+            "format": "int64",
+            "example": 1
+          },
+          "eventId": {
+            "type": "integer",
+            "description": "Идентификатор события",
+            "format": "int64"
+          },
+          "author": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "content": {
+            "type": "string",
+            "description": "Текст комментария"
+          },
+          "hasReplies": {
+            "type": "boolean",
+            "description": "Были ли добавлены ответы для комментария"
+          }
+        },
+        "description": "Подробная информация о комментарии"
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AddCommentDto": {
+        "required": [
+          "content"
+        ],
+        "type": "object",
+        "properties": {
+          "content": {
+            "maximum": 5000,
+            "minimum": 20,
+            "maxLength": 5000,
+            "minLength": 10,
+            "type": "string",
+            "description": "Комментарий, добавляемый пользователем",
+            "example": "Отличное событие! Весело и просто!"
+          }
+        },
+        "description": "Добавление нового комментария"
+      },
+      "ReportInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "comment": {
+            "$ref": "#/components/schemas/ShortCommentDto"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "reportReason": {
+            "type": "string"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "NewReportDto": {
+        "required": [
+          "reasonId"
+        ],
+        "type": "object",
+        "properties": {
+          "reasonId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 50,
+            "type": "string"
+          }
+        }
+      },
+      "NewUserRequest": {
+        "required": [
+          "email",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 250,
+            "minLength": 2,
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 254,
+            "minLength": 6,
+            "type": "string"
+          }
+        }
+      },
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "NewCompilationDto": {
+        "required": [
+          "title"
+        ],
+        "type": "object",
+        "properties": {
+          "pinned": {
+            "type": "boolean"
+          },
+          "title": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "CompilationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "pinned": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventFullDto"
+            }
+          }
+        }
+      },
+      "NewCategoryDto": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      },
+      "UpdateEventUserRequest": {
+        "type": "object",
+        "properties": {
+          "annotation": {
+            "maxLength": 2000,
+            "minLength": 20,
+            "type": "string"
+          },
+          "category": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "maxLength": 7000,
+            "minLength": 20,
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "participantLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requestModeration": {
+            "type": "boolean"
+          },
+          "stateAction": {
+            "type": "string",
+            "enum": [
+              "CANCEL_REVIEW",
+              "REJECT_EVENT",
+              "SEND_TO_REVIEW",
+              "PUBLISH_EVENT"
+            ]
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 3,
+            "type": "string"
+          }
+        }
+      },
+      "EventRequestStatusUpdateRequest": {
+        "required": [
+          "requestIds",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "requestIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PENDING",
+              "CONFIRMED",
+              "REJECTED",
+              "CANCELED"
+            ]
+          }
+        }
+      },
+      "EventRequestStatusUpdateResult": {
+        "type": "object",
+        "properties": {
+          "confirmedRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParticipationRequestDto"
+            }
+          },
+          "rejectedRequests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ParticipationRequestDto"
+            }
+          }
+        }
+      },
+      "UpdateEventAdminRequest": {
+        "type": "object",
+        "properties": {
+          "annotation": {
+            "maxLength": 2000,
+            "minLength": 20,
+            "type": "string"
+          },
+          "category": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "description": {
+            "maxLength": 7000,
+            "minLength": 20,
+            "type": "string"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "participantLimit": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "requestModeration": {
+            "type": "boolean"
+          },
+          "stateAction": {
+            "type": "string",
+            "enum": [
+              "CANCEL_REVIEW",
+              "REJECT_EVENT",
+              "SEND_TO_REVIEW",
+              "PUBLISH_EVENT"
+            ]
+          },
+          "title": {
+            "maxLength": 120,
+            "minLength": 3,
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCompilationRequest": {
+        "type": "object",
+        "properties": {
+          "pinned": {
+            "type": "boolean"
+          },
+          "title": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        }
+      },
+      "EventShortDto": {
+        "type": "object",
+        "properties": {
+          "annotation": {
+            "type": "string"
+          },
+          "category": {
+            "$ref": "#/components/schemas/CategoryDto"
+          },
+          "confirmedRequests": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "paid": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "FullCommentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "event": {
+            "$ref": "#/components/schemas/EventShortDto"
+          },
+          "author": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "content": {
+            "type": "string"
+          },
+          "commenterIp": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hasReplies": {
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/ShortCommentDto"
+          }
+        }
+      },
+      "ReportFullInfoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "comment": {
+            "$ref": "#/components/schemas/FullCommentDto"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "reportReason": {
+            "type": "string"
+          },
+          "reportDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "moderator": {
+            "$ref": "#/components/schemas/UserShortDto"
+          },
+          "resolvedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportAddNote": {
+        "required": [
+          "notes"
+        ],
+        "type": "object",
+        "properties": {
+          "notes": {
+            "maxLength": 50000,
+            "minLength": 5,
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
