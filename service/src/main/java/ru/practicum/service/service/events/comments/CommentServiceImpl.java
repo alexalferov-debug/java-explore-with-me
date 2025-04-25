@@ -28,6 +28,7 @@ import ru.practicum.service.repository.ReportReasonRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -79,6 +80,10 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(addCommentDto.getContent());
         comment.setParent(parent);
         Comment createdComment = commentDao.create(comment);
+        if (!parent.getHasReplies()) {
+            parent.setHasReplies(true);
+            commentDao.update(parent);
+        }
         return CommentMapper.INSTANCE.toShortCommentDto(createdComment);
     }
 
@@ -111,7 +116,17 @@ public class CommentServiceImpl implements CommentService {
         if (!comment.getAuthor().equals(user)) {
             throw new DataConflictException("Нельзя удалять чужие комментарии");
         }
+        commentDao.markAsDeletedAllRepliesToComment(commentId);
         comment.setIsDeleted(true);
+        if (Objects.nonNull(comment.getParent())) {
+            Pageable pageable = PageRequest.of(0, 3, Sort.by("createdAt").descending());
+            List<Comment> replies = commentDao.findAllReplies(comment.getParent().getId(), pageable);
+            if (replies.size() == 1) {
+                Comment parentComment = comment.getParent();
+                parentComment.setHasReplies(false);
+                commentDao.update(parentComment);
+            }
+        }
         commentDao.update(comment);
     }
 
@@ -120,6 +135,7 @@ public class CommentServiceImpl implements CommentService {
     public void deleteComment(Long commentId) {
         commentDao.findById(commentId);
         commentDao.delete(commentId);
+        commentDao.deleteAllByParentId(commentId);
     }
 
     @Override
@@ -231,6 +247,7 @@ public class CommentServiceImpl implements CommentService {
         if (state.equals(CommentReportState.RESOLVED)) {
             Comment comment = report.getComment();
             comment.setIsDeleted(true);
+            commentDao.markAsDeletedAllRepliesToComment(comment.getId());
             commentDao.update(comment);
         }
         return CommentMapper.INSTANCE.toReportFullInfoDto(commentDao.updateReport(report));

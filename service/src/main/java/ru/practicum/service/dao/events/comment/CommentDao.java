@@ -15,6 +15,10 @@ public interface CommentDao {
 
     Comment update(Comment comment);
 
+    void markAsDeletedAllRepliesToComment(Long parentId);
+
+    void deleteAllByParentId(Long parentId);
+
     Comment findById(Long id);
 
     Comment findNotDeletedById(Long id);
@@ -23,7 +27,7 @@ public interface CommentDao {
 
     List<Comment> findAllForUser(Long userId, Pageable pageable);
 
-    List<Comment> findAllReplies(Long eventId, Pageable pageable);
+    List<Comment> findAllReplies(Long commentId, Pageable pageable);
 
     List<Comment> findCommentsForAdmin(List<Long> userIds,
                                        List<Long> eventIds,

@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS comment_reports
     moderator_id BIGINT       REFERENCES users (id) ON DELETE SET NULL,
     created_at   TIMESTAMP             DEFAULT NOW(),
     resolved_at  TIMESTAMP,
-    notes        VARCHAR(50000),
+    notes        TEXT,
     UNIQUE (user_id, comment_id)
 );
 
@@ -116,66 +116,3 @@ CREATE INDEX IF NOT EXISTS idx_event_views_event_id ON event_views (event_id);
 CREATE INDEX IF NOT EXISTS idx_event_views_ip ON event_views (ip_address);
 
 CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON event_comments (parent_id);
-
-CREATE OR REPLACE FUNCTION update_has_replies()
-    RETURNS TRIGGER AS
-'
-    BEGIN
-        IF TG_OP = ''INSERT'' THEN
-            IF NEW.parent_id IS NOT NULL THEN
-                UPDATE event_comments
-                SET has_replies = TRUE
-                WHERE id = NEW.parent_id
-                  AND NOT has_replies;
-            END IF;
-            RETURN NEW;
-
-        ELSIF TG_OP = ''DELETE'' THEN
-            IF OLD.parent_id IS NOT NULL THEN
-                UPDATE event_comments
-                SET has_replies = EXISTS (SELECT 1
-                                          FROM event_comments ec
-                                          WHERE ec.parent_id = OLD.parent_id
-                                            AND ec.id <> OLD.id)
-                WHERE id = OLD.parent_id;
-            END IF;
-            RETURN OLD;
-        END IF;
-    END;
-' LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER trigger_update_has_replies
-    AFTER INSERT OR DELETE
-    ON event_comments
-    FOR EACH ROW
-EXECUTE FUNCTION update_has_replies();
-
--- 1. Функция для рекурсивного обновления is_deleted у потомков
-CREATE OR REPLACE FUNCTION mark_children_as_deleted()
-    RETURNS TRIGGER AS
-'
-    BEGIN
-        -- Проверяем, что комментарий только что был помечен как удаленный
-        IF NEW.is_deleted = TRUE AND OLD.is_deleted = FALSE THEN
-            -- Рекурсивно находим всех потомков и помечаем их как удаленные
-            WITH RECURSIVE descendants AS (SELECT id
-                                           FROM event_comments
-                                           WHERE parent_id = NEW.id
-                                           UNION ALL
-                                           SELECT ec.id
-                                           FROM event_comments ec
-                                                    INNER JOIN descendants d ON ec.parent_id = d.id)
-            UPDATE event_comments
-            SET is_deleted = TRUE
-            WHERE id IN (SELECT id FROM descendants);
-        END IF;
-        RETURN NEW;
-    END;
-' LANGUAGE plpgsql;
-
--- 2. Триггер, срабатывающий после обновления комментария
-CREATE OR REPLACE TRIGGER trigger_mark_children_deleted
-    AFTER UPDATE
-    ON event_comments
-    FOR EACH ROW
-EXECUTE FUNCTION mark_children_as_deleted();

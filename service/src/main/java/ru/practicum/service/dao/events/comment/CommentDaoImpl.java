@@ -35,8 +35,18 @@ public class CommentDaoImpl implements CommentDao {
     }
 
     @Override
+    public void deleteAllByParentId(Long parentId) {
+        repository.deleteAllByParentId(parentId);
+    }
+
+    @Override
     public Comment update(Comment comment) {
         return repository.save(comment);
+    }
+
+    @Override
+    public void markAsDeletedAllRepliesToComment(Long parentId) {
+        repository.markAsDeletedAllRepliesToComment(parentId);
     }
 
     @Override
