@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import ru.practicum.service.exception.DataConflictException;
 import ru.practicum.service.exception.EventValidationException;
 import ru.practicum.service.exception.NotFoundException;
 import ru.practicum.service.model.ApiError;
@@ -49,6 +50,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EventValidationException.class)
     public ResponseEntity<ApiError> handleEventValidation(EventValidationException ex) {
+        return buildResponse(HttpStatus.CONFLICT, "For the requested operation the conditions are not met.",
+                ex.getMessage(), List.of());
+    }
+
+    @ExceptionHandler(DataConflictException.class)
+    public ResponseEntity<ApiError> handleEventValidation(DataConflictException ex) {
         return buildResponse(HttpStatus.CONFLICT, "For the requested operation the conditions are not met.",
                 ex.getMessage(), List.of());
     }

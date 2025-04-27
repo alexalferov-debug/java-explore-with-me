@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import ru.practicum.service.data.EventState;
 
 import java.time.LocalDateTime;
@@ -63,5 +64,6 @@ public class Event {
     @Column(nullable = false, length = 120)
     private String title;
 
+    @Formula("(SELECT COUNT(*) FROM event_views ev where ev.event_id = id)")
     private Long views = 0L;
 }

@@ -23,9 +23,10 @@ public class RequestsController {
     public ResponseEntity<ParticipationRequestDto> addRequest(@PathVariable @PositiveOrZero Long userId,
                                                               @RequestParam @PositiveOrZero Long eventId
     ) {
+        LocalDateTime curDate = LocalDateTime.now();
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(requestsService.addRequest(userId, eventId, LocalDateTime.now()));
+                .body(requestsService.addRequest(userId, eventId, curDate));
     }
 
     @PatchMapping("/{requestId}/cancel")
